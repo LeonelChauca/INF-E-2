@@ -15,10 +15,11 @@ function insertarRegistro($servername, $username, $password, $dbname) {
         $apellido_paterno = $_POST["ap_paterno"];
         $apellido_materno = $_POST["ap_materno"];
         $email = $_POST["correo"];
+        $departamento = $_POST["departamento"];
         
-        $sql = "INSERT INTO persona (nombre, ap_paterno, ap_materno, correo, tipo) VALUES (?, ?, ?, ?, 'Cliente')";
+        $sql = "INSERT INTO persona (nombre, ap_paterno, ap_materno, correo, tipo,departamento) VALUES (?, ?, ?, ?, 'Cliente',?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssss", $nombre, $apellido_paterno, $apellido_materno, $email);
+        $stmt->bind_param("sssss", $nombre, $apellido_paterno, $apellido_materno, $email,$departamento);
         
         if ($stmt->execute()) {
             echo '<div class="alert alert-success" role="alert">¡Nuevo registro insertado exitosamente!</div>';
@@ -34,7 +35,7 @@ function insertarRegistro($servername, $username, $password, $dbname) {
 
 function getUsuarios($servername, $username, $password, $dbname){
     $conn = new mysqli($servername, $username, $password, $dbname);
-    $sql = "SELECT persona_id,nombre,ap_paterno,ap_materno,correo,tipo FROM persona";
+    $sql = "SELECT persona_id,nombre,ap_paterno,ap_materno,correo,tipo,departamento FROM persona";
     $result = $conn->query($sql);
     $cont=1;
     if ($result->num_rows > 0) {
@@ -46,8 +47,9 @@ function getUsuarios($servername, $username, $password, $dbname){
             echo "<td>" . $row["ap_materno"] . "</td>";
             echo "<td>" . $row["correo"] . "</td>";
             echo "<td>" . $row["tipo"] . "</td>";
+            echo "<td>" . $row["departamento"] . "</td>";
             echo "<td class='d-flex gap-1'>
-                <button class='btn btn-primary btn-editar' name='editar' data-bs-toggle='modal' data-bs-target='#modalEditar' data-id='" . $row["persona_id"] . "' data-nombre='" . $row["nombre"] . "' data-ap-paterno='" . $row["ap_paterno"] . "' data-ap-materno='" . $row["ap_materno"] . "' data-correo='" . $row["correo"] . "' data-tipo='" . $row["tipo"] . "'>Editar</button>
+                <button class='btn btn-primary btn-editar' name='editar' data-bs-toggle='modal' data-bs-target='#modalEditar' data-id='" . $row["persona_id"] . "' data-nombre='" . $row["nombre"] . "' data-ap-paterno='" . $row["ap_paterno"] . "' data-ap-materno='" . $row["ap_materno"] . "' data-correo='" . $row["correo"] . "' data-tipo='" . $row["tipo"] . "' data-departamento='" . $row["departamento"] . "'>Editar</button>
                 <form id='" .  $row["persona_id"] . "' method='POST'>
                     <input id='id_" .  $row["persona_id"] . "' name='id' type='hidden' value='" .  $row["persona_id"] . "'>
                     <button type='submit' name='eliminar'  class='btn btn-danger'>Eliminar</button>
@@ -81,7 +83,7 @@ function getUsuarios($servername, $username, $password, $dbname){
                         <div class="modal-body">';
         echo'
         <form action="" method="POST" class="row g-3 needs-validation">
-                <input name="id" type="hidden" value="' . $row["persona_id"] . '"class="form-control" id="id_p" required>
+                <input name="id_p" type="hidden" value="' . $row["persona_id"] . '"class="form-control" id="id_p" required>
                 <div class="col-md-4">
                     <label for="nombre-editar" class="form-label">Numero de cuenta</label>
                     <input name="numero_cuenta" type="number" class="form-control" id="numero_cuenta" required>
@@ -103,6 +105,7 @@ function getUsuarios($servername, $username, $password, $dbname){
                         Es necesario llenar este campo
                     </div>
                 </div>
+            
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -222,11 +225,12 @@ function editarUsuario(){
         $apellido_materno = $_POST["ap_materno"];
         $email = $_POST["correo"];
         $tipo = $_POST["tipo"];
-        $id = $_POST["id"]; // Obtener el ID del usuario
+        $id = $_POST["id"];
+        $departamento = $_POST["departamento"]; // Obtener el ID del usuario
         
-        $sql = "UPDATE persona SET nombre = ?, ap_paterno = ?, ap_materno = ?, correo = ?, tipo = ? WHERE persona_id = ?";
+        $sql = "UPDATE persona SET nombre = ?, ap_paterno = ?, ap_materno = ?, correo = ?, tipo = ?,departamento=? WHERE persona_id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssi", $nombre, $apellido_paterno, $apellido_materno, $email, $tipo, $id);
+        $stmt->bind_param("ssssssi", $nombre, $apellido_paterno, $apellido_materno, $email, $tipo,$departamento, $id);
         echo var_dump($_POST);
         if ($stmt->execute()) {
             header("Location: index.php");
@@ -297,6 +301,24 @@ editarUsuario();
                 </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <label  for="validationCustom02" class="form-label">Departamento</label>
+                <select name="departamento" class="form-select" id="inputGroupSelect01">
+                    <option selected>Elige...</option>
+                    <option value="La Paz">La Paz</option>
+                    <option value="Oruro">Oruro</option>
+                    <option value="Potosí">Potosí</option>
+                    <option value="Cochabamba">Cochabamba</option>
+                    <option value="Santa Cruz">Santa Cruz</option>
+                    <option value="Beni">Beni</option>
+                    <option value="Pando">Pando</option>
+                    <option value="Tarija">Tarija</option>
+                    <option value="Chuquisaca">Chuquisaca</option>
+                </select>
+                <div class="invalid-feedback">
+                    Es necesario llenar este campo
+                </div>
+            </div>
             <div class="col-12">
                 <button class="btn btn-primary" name="registrar" type="submit">Registrar</button>
             </div>
@@ -305,7 +327,7 @@ editarUsuario();
             ?>
             
         </form>
-        <div class="table-responsive" style="width: 97%; max-width:1000px; margin:0 auto">
+        <div class="table-responsive" style="width: 97%; max-width:1200px; margin:0 auto">
         <table class="table">
                 <thead class="table-primary">
                     <tr>
@@ -315,6 +337,7 @@ editarUsuario();
                         <th>Apellido Materno</th>
                         <th>correo</th>
                         <th>tipo</th>
+                        <th>departamento</th>
                         <th>Accion</th>
                     </tr>
                 </thead>
@@ -374,6 +397,24 @@ editarUsuario();
                                 Se necesita un tipo válido
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            <label  for="validationCustom02" class="form-label">Departamento</label>
+                            <select id="departamento-editar" name="departamento" class="form-select" id="inputGroupSelect01">
+                                <option selected>Elige...</option>
+                                <option value="La Paz">La Paz</option>
+                                <option value="Oruro">Oruro</option>
+                                <option value="Potosí">Potosí</option>
+                                <option value="Cochabamba">Cochabamba</option>
+                                <option value="Santa Cruz">Santa Cruz</option>
+                                <option value="Beni">Beni</option>
+                                <option value="Pando">Pando</option>
+                                <option value="Tarija">Tarija</option>
+                                <option value="Chuquisaca">Chuquisaca</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Es necesario llenar este campo
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -409,12 +450,14 @@ editarUsuario();
             const apematerno = boton.getAttribute('data-ap-materno');
             const correo = boton.getAttribute('data-correo');
             const tipo = boton.getAttribute('data-tipo');
+            const departamento = boton.getAttribute('data-departamento');
             document.getElementById('id').value = personaId;                
             document.getElementById('nombre-editar').value = nombre;
             document.getElementById('ap-paterno-editar').value = apepaterno;
             document.getElementById('ap-materno-editar').value = apematerno;
             document.getElementById('correo-editar').value = correo;
             document.getElementById('tipo-editar').value = tipo;
+            document.getElementById('departamento-editar').value = departamento;
         });
     });
 
