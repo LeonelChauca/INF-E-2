@@ -81,7 +81,7 @@ function getUsuarios($servername, $username, $password, $dbname){
                         <div class="modal-body">';
         echo'
         <form action="" method="POST" class="row g-3 needs-validation">
-                <input name="id" type="hidden" value="' . $row["persona_id"] . '"class="form-control" id="id_p" required>
+                <input name="id_p" type="hidden" value="' . $row["persona_id"] . '"class="form-control" id="id_p" required>
                 <div class="col-md-4">
                     <label for="nombre-editar" class="form-label">Numero de cuenta</label>
                     <input name="numero_cuenta" type="number" class="form-control" id="numero_cuenta" required>
